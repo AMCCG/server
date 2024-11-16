@@ -6,6 +6,6 @@ from routes import auth
 
 app = FastAPI()
 
-app.include_router(auth.roter, prefix='/auth')
+app.include_router(auth.router, prefix='/auth')
 
 Base.metadata.create_all(engine)
