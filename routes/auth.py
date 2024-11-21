@@ -1,7 +1,7 @@
 import uuid
 import bcrypt
 import jwt
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -42,3 +42,15 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(400, 'Incorrect password!')
     token = jwt.encode({'id': user_db.id}, 'password_key')
     return {'token': token, 'user': user_db}
+
+
+@router.get("/")
+def current_user_data(db: Session = Depends(get_db), x_auth_token=Header()):
+    if not x_auth_token:
+        raise HTTPException(401, 'No auth token, access denied!')
+    verified_token = jwt.decode(x_auth_token, 'password_key', ['HS256'])
+    print(verified_token)
+    if not verified_token:
+        raise HTTPException(401, 'Token verification failed, authorization')
+    uid = verified_token.get('id')
+    return uid
