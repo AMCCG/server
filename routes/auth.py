@@ -1,10 +1,11 @@
 import uuid
 import bcrypt
 import jwt
-from fastapi import HTTPException, Depends, Header
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
+from middleware.auth_middleware import auth_middleware
 from model.user import User
 from pydantic_schemas.user_create import UserCreate
 from fastapi import APIRouter
@@ -45,12 +46,8 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/")
-def current_user_data(db: Session = Depends(get_db), x_auth_token=Header()):
-    if not x_auth_token:
-        raise HTTPException(401, 'No auth token, access denied!')
-    verified_token = jwt.decode(x_auth_token, 'password_key', ['HS256'])
-    print(verified_token)
-    if not verified_token:
-        raise HTTPException(401, 'Token verification failed, authorization')
-    uid = verified_token.get('id')
-    return uid
+def current_user_data(db: Session = Depends(get_db), user_dict=Depends(auth_middleware)):
+    user = db.query(User).filter(User.id == user_dict['uid']).first()
+    if not user:
+        raise HTTPException(404, 'User not found!')
+    return user
