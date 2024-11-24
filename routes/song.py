@@ -10,13 +10,6 @@ import cloudinary.uploader
 
 router = APIRouter()
 
-cloudinary.config(
-    cloud_name="dhzgif8ti",
-    api_key="442156838817215",
-    api_secret="<your_api_secret>",  # Click 'View API Keys' above to copy your API secret
-    secure=True
-)
-
 
 @router.post('/upload', status_code=201)
 def upload_song(song: UploadFile = File(...),
