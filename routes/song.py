@@ -76,5 +76,8 @@ def favorite_song(song: FavoriteSong, db: Session = Depends(get_db), auth_detail
 @router.get("/list/favorite")
 def list_song(db: Session = Depends(get_db), auth_details=Depends(auth_middleware)):
     user_id: str = auth_details['uid']
-    fav_songs = db.query(Favorite).filter(Favorite.user_id == user_id).options(joinedload(Favorite.song)).all()
+    fav_songs = db.query(Favorite).filter(Favorite.user_id == user_id).options(
+        joinedload(Favorite.song),
+        joinedload(Favorite.user)
+    ).all()
     return fav_songs
